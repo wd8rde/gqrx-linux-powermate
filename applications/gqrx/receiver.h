@@ -70,12 +70,13 @@ public:
 
     /*! \brief Available demodulators. */
     enum rx_demod {
-        RX_DEMOD_OFF  = 0,  /*!< No receiver. */
-        RX_DEMOD_NONE = 1,  /*!< No demod. Raw I/Q to audio. */
-        RX_DEMOD_AM   = 2,  /*!< Amplitude modulation. */
-        RX_DEMOD_FMN  = 3,  /*!< Frequency modulation. */
-        RX_DEMOD_FMW  = 4,  /*!< Frequency modulation. */
-        RX_DEMOD_SSB  = 5   /*!< Single Side Band. */
+        RX_DEMOD_OFF   = 0,  /*!< No receiver. */
+        RX_DEMOD_NONE  = 1,  /*!< No demod. Raw I/Q to audio. */
+        RX_DEMOD_AM    = 2,  /*!< Amplitude modulation. */
+        RX_DEMOD_NFM   = 3,  /*!< Frequency modulation. */
+        RX_DEMOD_WFM_M = 4,  /*!< Frequency modulation (wide, mono). */
+        RX_DEMOD_WFM_S = 5,  /*!< Frequency modulation (wide, stereo). */
+        RX_DEMOD_SSB   = 6   /*!< Single Side Band. */
     };
 
     /*! \brief Supported receiver types. */
@@ -198,7 +199,8 @@ private:
     gr_multiply_cc_sptr mixer;
 
 
-    gr_multiply_const_ff_sptr audio_gain; /*!< Audio gain block. */
+    gr_multiply_const_ff_sptr audio_gain0; /*!< Audio gain block. */
+    gr_multiply_const_ff_sptr audio_gain1; /*!< Audio gain block. */
 
     gr_wavfile_sink_sptr      wav_sink;   /*!< WAV file sink for recording. */
     gr_wavfile_source_sptr    wav_src;    /*!< WAV file source for playback. */

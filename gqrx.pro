@@ -9,7 +9,7 @@ QT       += core gui
 TARGET = gqrx
 TEMPLATE = app
 
-CONFIG += debug
+#CONFIG += debug
 
 # disable debug messages in release
 CONFIG(debug, debug|release) {
@@ -45,11 +45,13 @@ SOURCES += \
     dsp/sniffer_f.cpp \
     dsp/afsk1200/costabf.c \
     dsp/afsk1200/cafsk12.cpp \
-    dsp/rx_agc_xx.cpp \
     dsp/agc_impl.cpp \
     dsp/correct_iq_cc.cpp \
+    dsp/lpf.cpp \
+    dsp/rx_agc_xx.cpp \
     dsp/rx_noise_blanker_cc.cpp \
     dsp/resampler_xx.cpp \
+    dsp/stereo_demod.cpp \
 #    input/rx_source_base.cpp \
 #    input/rx_source_fcd.cpp \
 #    input/fcdctl/fcd.c \
@@ -93,11 +95,13 @@ HEADERS += \
     dsp/afsk1200/filter-i386.h \
     dsp/afsk1200/filter.h \
     dsp/afsk1200/cafsk12.h \
-    dsp/rx_agc_xx.h \
     dsp/agc_impl.h \
     dsp/correct_iq_cc.h \
+    dsp/lpf.h \
     dsp/resampler_xx.h \
+    dsp/rx_agc_xx.h \
     dsp/rx_noise_blanker_cc.h \
+    dsp/stereo_demod.h \
 #    input/rx_source_base.h \
 #    input/rx_source_fcd.h \
 #    input/fcdctl/hidapi.h \
