@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2011 Alexandru Csete OZ9AEC.
+ * Copyright 2011-2013 Alexandru Csete OZ9AEC.
  *
  * Gqrx is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  * Boston, MA 02110-1301, USA.
  */
 #include <cmath>
+#include <filter/firdes.h>
 #include <gr_io_signature.h>
-#include <gr_firdes.h>
 #include <iostream>
 #include "dsp/rx_filter.h"
 
@@ -53,10 +53,10 @@ rx_filter::rx_filter(double sample_rate, double low, double high, double trans_w
         d_high = 0.95*sample_rate/2.0;
 
     /* generate taps */
-    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
+    d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
 
     /* create band pass filter */
-    d_bpf = gr_make_fir_filter_ccc(1, d_taps);
+    d_bpf = gr::filter::fft_filter_ccc::make(1, d_taps, 1);
 
     /* connect filter */
     connect(self(), 0, d_bpf, 0);
@@ -80,7 +80,15 @@ void rx_filter::set_param(double low, double high, double trans_width)
         d_high = 0.95*d_sample_rate/2.0;
 
     /* generate new taps */
-    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
+    try
+    {
+        d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, d_low, d_high, d_trans_width);
+    }
+    catch (std::out_of_range)
+    {
+        std::cout << "Could not generate filter taps LO: " << d_low <<
+                     " HI:" << d_high << " TW:" << d_trans_width << std::endl;
+    }
 
 #ifndef QT_NO_DEBUG_OUTPUT
     std::cout << "Genrating taps for new filter LO:" << d_low <<
@@ -114,10 +122,10 @@ rx_xlating_filter::rx_xlating_filter(double sample_rate, double center, double l
       d_trans_width(trans_width)
 {
     /* generate taps */
-    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
+    d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
 
     /* create band pass filter */
-    d_bpf = gr_make_freq_xlating_fir_filter_ccc(1, d_taps, d_center, d_sample_rate);
+    d_bpf = gr::filter::freq_xlating_fir_filter_ccc::make(1, d_taps, d_center, d_sample_rate);
 
     /* connect filter */
     connect(self(), 0, d_bpf, 0);
@@ -149,7 +157,7 @@ void rx_xlating_filter::set_param(double low, double high, double trans_width)
     d_high        = high;
 
     /* generate new taps */
-    d_taps = gr_firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
+    d_taps = gr::filter::firdes::complex_band_pass(1.0, d_sample_rate, -d_high, -d_low, d_trans_width);
 
     d_bpf->set_taps(d_taps);
 }
