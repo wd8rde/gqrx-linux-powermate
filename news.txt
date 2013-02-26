@@ -1,8 +1,9 @@
    2.1.xyz
 
        NEW: I/Q swapping option.
-       NEW: FFT video filter with non-linear gain.
+       NEW: FFT video filter with non-linear gain (still WIP).
        NEW: Save and restore FFT settings.
+       NEW: Save and restore receiver options (offset, mode and squelch level).
        NEW: AM DC removal using IIR filter.
      FIXED: Removed graphics redraw delay when changing frequency or demodulator.
      FIXED: Respect RF frequency range of input device.
@@ -12,12 +13,15 @@
      FIXED: Show correct intial filter preset in filter selector.
      FIXED: Workaround for 'jerky streaming' when DSP is started using rtlsdr.
      FIXED: Freeze when channel filter becomes too narrow in AM and FM modes.
+     FIXED: Crash when changing sample rate of the current input device.
+   CHANGED: Show device ID (e.g. rtl=0) in title bar ionstead of description.
   IMPROVED: AGC settings moved to dialog window.
   IMPROVED: Increase LO resolution to 1 Hz.
   IMPROVED: GUI layout fixes for Mac OS X.
   IMPROVED: Shortcuts for resetting and re-centering FFT plot after zooming.
   IMPROVED: Crash recovery in case of bad config file.
   IMPROVED: Support 50 fps FFT rate and allow disabling FFT.
+  IMPROVED: I/Q DC cancelling.
 
 
    2.1.148  Released on December 9, 2012

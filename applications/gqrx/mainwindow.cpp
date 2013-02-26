@@ -136,6 +136,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(gainChanged(double)), SLOT(setRfGain(double)));
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
+    connect(uiDockInputCtl, SIGNAL(dcCancelChanged(bool)), this, SLOT(setDcCancel(bool)));
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -311,25 +312,11 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         ui->plotter->setSpanFreq((quint32)actual_rate);
     }
 
-    /** FIXME: move to DockInputCtl **/
-    uiDockInputCtl->setFreqCorr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
-    rx->set_freq_corr(m_settings->value("input/corr_freq", 0).toInt(&conv_ok));
-
-    uiDockInputCtl->setIqSwap(m_settings->value("input/swap_iq", false).toBool());
-    rx->set_iq_swap(m_settings->value("input/swap_iq", false).toBool());
-
-    d_lnb_lo = m_settings->value("input/lnb_lo", 0).toLongLong(&conv_ok);
-    uiDockInputCtl->setLnbLo((double)d_lnb_lo/1.0e6);
-
-    bool ignore_limits = m_settings->value("input/ignore_limits", false).toBool();
-    uiDockInputCtl->setIgnoreLimits(ignore_limits);
-    updateFrequencyRange(ignore_limits);
     ui->freqCtrl->setFrequency(m_settings->value("input/frequency", 144500000).toLongLong(&conv_ok));
     setNewFrequency(ui->freqCtrl->getFrequency()); // ensure all GUI and RF is updated
 
-    uiDockInputCtl->setGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
-    setRfGain(m_settings->value("input/gain", -1).toDouble(&conv_ok));
-
+    uiDockInputCtl->readSettings(m_settings);
+    uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
 
     return conf_ok;
@@ -384,30 +371,9 @@ void MainWindow::storeSession()
     if (m_settings)
     {
         m_settings->setValue("input/frequency", ui->freqCtrl->getFrequency());
-        if (d_lnb_lo)
-            m_settings->setValue("input/lnb_lo", d_lnb_lo);
-        else
-            m_settings->remove("input/lnb_lo");
 
-        double dblval = uiDockInputCtl->gain();
-        m_settings->setValue("input/gain", dblval);
-
-        if (uiDockInputCtl->freqCorr())
-            m_settings->setValue("input/corr_freq", uiDockInputCtl->freqCorr());
-        else
-            m_settings->remove("input/corr_freq");
-
-        if (uiDockInputCtl->iqSwap())
-            m_settings->setValue("input/swap_iq", true);
-        else
-            m_settings->remove("input/swap_iq");
-
-        if (uiDockInputCtl->ignoreLimits())
-            m_settings->setValue("input/ignore_limits", true);
-        else
-            m_settings->remove("input/ignore_limits");
-
-        // FFT settings
+        uiDockInputCtl->saveSettings(m_settings);
+        uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
     }
 }
@@ -516,6 +482,12 @@ void MainWindow::setIqSwap(bool reversed)
     rx->set_iq_swap(reversed);
 }
 
+/*! \brief Enable/disable automatic DC removal. */
+void MainWindow::setDcCancel(bool enabled)
+{
+    rx->set_dc_cancel(enabled);
+}
+
 /*! \brief Ignore hardware limits.
  *  \param ignore_limits Whether harware limits should be ignored or not.
  *
@@ -535,34 +507,6 @@ void MainWindow::setIgnoreLimits(bool ignore_limits)
     freq = ui->freqCtrl->getFrequency();
     setNewFrequency(freq);
 }
-
-/*! \brief Set new DC offset values.
- *  \param dci I correction.
- *  \param dcq Q correction.
- *
- * The valid range is between -1.0 and 1.0, though hthis is not checked.
- */
-void MainWindow::setDcCorr(double dci, double dcq)
-{
-    qDebug() << "*** FIXME:" << __FUNCTION__;
-    qDebug() << "DCI:" << dci << "  DCQ:" << dcq;
-    rx->set_dc_corr(dci, dcq);
-}
-
-
-/*! \brief Set new IQ correction values.
- *  \param gain IQ gain correction.
- *  \param phase IQ phase correction.
- *
- * The valid range is between -1.0 and 1.0, though hthis is not checked.
- */
-void MainWindow::setIqCorr(double gain, double phase)
-{
-    qDebug() << "*** FIXME:" << __FUNCTION__;
-    qDebug() << "Gain:" << gain << "  Phase:" << phase;
-    rx->set_iq_corr(gain, phase);
-}
-
 
 /*! \brief Select new demodulator.
  *  \param demod New demodulator index.
