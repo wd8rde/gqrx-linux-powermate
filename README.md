@@ -36,6 +36,7 @@ http://sourceforge.net/projects/gqrx/
 Third party app bundle for Macs can be downloaded here:
 http://dekar.wc3edit.net/2012/09/30/osx-port-of-the-awesome-gqrx-sdr-software/
 
+The binary packages are bundles containing the necessary GNU Radio, UHD, rtlsdr and Boost libraries.
 
 Usage
 -----
@@ -52,7 +53,7 @@ Gqrx supports multiple configurations and sessions if you have several devices o
 Known problems
 --------------
 
-- Reconfiguring a device may lead to applicvation freeze or crash.
+- Reconfiguring a device may lead to application freeze or crash.
 - Device arguments not well documented.
 - Funcube Dongle may not work well on systems with libusb-1.0.9 (try gqrx-2.0 instead).
 - Some settings are not saved between sessions.
@@ -91,6 +92,9 @@ Moe Weatley:
 - Frequency selector.
 - Signal strength indicator.
 - AGC
+
+Nadeem Hasan:
+- Bug fixes.
 
 Vesa Solonen:
 - DC removal in AM demodulator.

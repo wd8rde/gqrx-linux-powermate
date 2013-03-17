@@ -137,6 +137,7 @@ MainWindow::MainWindow(const QString cfgfile, QWidget *parent) :
     connect(uiDockInputCtl, SIGNAL(freqCorrChanged(int)), this, SLOT(setFreqCorr(int)));
     connect(uiDockInputCtl, SIGNAL(iqSwapChanged(bool)), this, SLOT(setIqSwap(bool)));
     connect(uiDockInputCtl, SIGNAL(dcCancelChanged(bool)), this, SLOT(setDcCancel(bool)));
+    connect(uiDockInputCtl, SIGNAL(iqBalanceChanged(bool)), this, SLOT(setIqBalance(bool)));
     connect(uiDockInputCtl, SIGNAL(ignoreLimitsChanged(bool)), this, SLOT(setIgnoreLimits(bool)));
     connect(uiDockRxOpt, SIGNAL(filterOffsetChanged(qint64)), this, SLOT(setFilterOffset(qint64)));
     connect(uiDockRxOpt, SIGNAL(demodSelected(int)), this, SLOT(selectDemod(int)));
@@ -301,6 +302,9 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
         setWindowTitle(QString("Gqrx %1 - %2").arg(VERSION).arg(devlabel));
     }
 
+    QString outdev = m_settings->value("output/device", "").toString();
+    rx->set_output_device(outdev.toStdString());
+
     int sr = m_settings->value("input/sample_rate", 0).toInt(&conv_ok);
     if (conv_ok && (sr > 0))
     {
@@ -318,6 +322,7 @@ bool MainWindow::loadConfig(const QString cfgfile, bool check_crash)
     uiDockInputCtl->readSettings(m_settings);
     uiDockRxOpt->readSettings(m_settings);
     uiDockFft->readSettings(m_settings);
+    uiDockAudio->readSettings(m_settings);
 
     return conf_ok;
 }
@@ -375,6 +380,7 @@ void MainWindow::storeSession()
         uiDockInputCtl->saveSettings(m_settings);
         uiDockRxOpt->saveSettings(m_settings);
         uiDockFft->saveSettings(m_settings);
+        uiDockAudio->saveSettings(m_settings);
     }
 }
 
@@ -486,6 +492,12 @@ void MainWindow::setIqSwap(bool reversed)
 void MainWindow::setDcCancel(bool enabled)
 {
     rx->set_dc_cancel(enabled);
+}
+
+/*! \brief Enable/disable automatic IQ balance. */
+void MainWindow::setIqBalance(bool enabled)
+{
+    rx->set_iq_balance(enabled);
 }
 
 /*! \brief Ignore hardware limits.
