@@ -71,9 +71,9 @@ public:
     }
     void updateOverlay() { drawOverlay(); }
 
-    void setMaxDB(qint32 max);
-    void setMinDB(qint32 min);
-    void setMinMaxDB(qint32 min, qint32 max);
+    void setMaxDB(double max);
+    void setMinDB(double min);
+    void setMinMaxDB(double min, double max);
 
     void setFontSize(int points) { m_FontSize = points; }
     void setHdivDelta(int delta) { m_HdivDelta = delta; }
@@ -97,6 +97,17 @@ public:
     }
 
     void setFftCenterFreq(qint64 f) { m_FftCenter = f; }
+
+    /*! Set FFT plot color. */
+    void setFftPlotColor(const QColor color)
+    {
+        m_FftColor = color;
+        m_FftCol0 = color;
+        m_FftCol0.setAlpha(0x00);
+        m_FftCol1 = color;
+        m_FftCol1.setAlpha(0xA0);
+    }
+    void setFftFill(bool enabled) { m_FftFill = enabled; }
 
 signals:
     void newCenterFreq(qint64 f);
@@ -183,8 +194,8 @@ private:
 
     int    m_HorDivs;   /*!< Current number of horizontal divisions. Calculated from width. */
     int    m_VerDivs;   /*!< Current number of vertical divisions. Calculated from height. */
-    qint32 m_MaxdB;
-    qint32 m_MindB;
+    double m_MaxdB;
+    double m_MindB;
     qint32 m_dBStepSize;
     qint32 m_Span;
     double m_SampleFreq;    /*!< Sample rate. */
@@ -201,6 +212,9 @@ private:
     int m_VdivDelta; /*!< Minimum distance in pixels between two vertical grid lines (horizontal division). */
 
     quint32 m_LastSampleRate;
+
+    QColor m_FftColor, m_FftCol0, m_FftCol1;
+    bool m_FftFill;
 
 };
 

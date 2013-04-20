@@ -117,6 +117,11 @@ CPlotter::CPlotter(QWidget *parent) :
     m_HdivDelta = 60;
 
     m_FreqDigits = 3;
+
+    m_FftColor = QColor(0x97,0xD0,0x97,0xFF);
+    m_FftCol0 = QColor(0x97,0xD0,0x97,0x00);
+    m_FftCol1 = QColor(0x97,0xD0,0x97,0xA0);
+    m_FftFill = false;
 }
 
 CPlotter::~CPlotter()
@@ -212,8 +217,8 @@ void CPlotter::mouseMoveEvent(QMouseEvent* event)
         {
             setCursor(QCursor(Qt::ClosedHandCursor));
             // move Y scale up/down
-            int delta_px = m_Yzero - pt.y();
-            int delta_db = delta_px * abs(m_MindB-m_MaxdB)/m_OverlayPixmap.height();
+            double delta_px = m_Yzero - pt.y();
+            double delta_db = delta_px * abs(m_MindB-m_MaxdB)/(double)m_OverlayPixmap.height();
             m_MindB -= delta_db;
             m_MaxdB -= delta_db;
 
@@ -560,7 +565,7 @@ void CPlotter::paintEvent(QPaintEvent *)
 //////////////////////////////////////////////////////////////////////
 void CPlotter::draw()
 {
-    int i;
+    int i,n;
     int w;
     int h;
     int xmin, xmax;
@@ -621,19 +626,46 @@ void CPlotter::draw()
                                 m_FftCenter-m_Span/2, m_FftCenter+m_Span/2,
                                 m_fftData, m_fftbuf, &xmin, &xmax);
 
-        // draw the 2D spectrum
-        painter2.setPen(QColor(0x97,0xD0,0x97,0xFF));
-        for (i = 0; i < xmax - xmin; i++)
+        // draw the pandapter
+        painter2.setPen(m_FftColor);
+        n = xmax - xmin;
+        for (i = 0; i < n; i++)
         {
             LineBuf[i].setX(i + xmin);
             LineBuf[i].setY(m_fftbuf[i + xmin]);
         }
-        painter2.drawPolyline(LineBuf, xmax - xmin);
+
+        if (m_FftFill)
+        {
+            QLinearGradient linGrad(QPointF(xmin, h), QPointF(xmin, 0));
+            linGrad.setColorAt(0.0, m_FftCol0);
+            linGrad.setColorAt(1.0, m_FftCol1);
+            painter2.setBrush(QBrush(QGradient(linGrad)));
+            if (n < MAX_SCREENSIZE-2)
+            {
+                LineBuf[n].setX(xmax-1);
+                LineBuf[n].setY(h);
+                LineBuf[n+1].setX(xmin);
+                LineBuf[n+1].setY(h);
+                painter2.drawPolygon(LineBuf, n+2);
+            }
+            else
+            {
+                LineBuf[MAX_SCREENSIZE-2].setX(xmax-1);
+                LineBuf[MAX_SCREENSIZE-2].setY(h);
+                LineBuf[MAX_SCREENSIZE-1].setX(xmin);
+                LineBuf[MAX_SCREENSIZE-1].setY(h);
+                painter2.drawPolygon(LineBuf, n);
+            }
+        }
+        else
+        {
+            painter2.drawPolyline(LineBuf, n);
+        }
     }
 
     // trigger a new paintEvent
     update();
-
 }
 
 /*! \brief Set new FFT data.
@@ -781,7 +813,7 @@ void CPlotter::getScreenIntegerFFTData(qint32 plotHeight, qint32 plotWidth,
 
 
 /*! \brief Set upper limit of dB scale. */
-void CPlotter::setMaxDB(qint32 max)
+void CPlotter::setMaxDB(double max)
 {
     m_MaxdB = max;
 
@@ -792,7 +824,7 @@ void CPlotter::setMaxDB(qint32 max)
 }
 
 /*! \brief Set lower limit of dB scale. */
-void CPlotter::setMinDB(qint32 min)
+void CPlotter::setMinDB(double min)
 {
     m_MindB = min;
 
@@ -803,7 +835,7 @@ void CPlotter::setMinDB(qint32 min)
 }
 
 /*! \brief Set limits of dB scale. */
-void CPlotter::setMinMaxDB(qint32 min, qint32 max)
+void CPlotter::setMinMaxDB(double min, double max)
 {
     m_MaxdB = max;
     m_MindB = min;
