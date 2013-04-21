@@ -450,9 +450,10 @@ void MainWindow::setLnbLo(double freq_mhz)
     d_lnb_lo = qint64(freq_mhz*1e6);
     qDebug() << "New LNB LO:" << d_lnb_lo << "Hz";
 
-    // Update ranges and show updated frequency in display
+    // Update ranges and show updated frequency
     updateFrequencyRange(uiDockInputCtl->ignoreLimits());
     ui->freqCtrl->setFrequency(d_lnb_lo + rf_freq);
+    ui->plotter->setCenterFreq(d_lnb_lo + d_hw_freq);
 }
 
 /*! \brief Set new channel filter offset.
@@ -1144,7 +1145,7 @@ void MainWindow::setIqFftRate(int fps)
  */
 void MainWindow::setIqFftSplit(int pct_wf)
 {
-    if ((pct_wf >= 20) && (pct_wf <= 80))
+    if ((pct_wf >= 10) && (pct_wf <= 100))
     {
         ui->plotter->setPercent2DScreen(pct_wf);
     }
