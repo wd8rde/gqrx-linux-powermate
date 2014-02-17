@@ -34,7 +34,7 @@
 
 #include <iostream>
 #include <boost/program_options.hpp>
-#include <thread>
+//#include <thread>
 #include <X11/Xlib.h>
 namespace po = boost::program_options;
 

@@ -33,7 +33,7 @@ unix:!macx {
         message("Gqrx configured with pulseaudio backend")
     }
     DEFINES += POWERMATE
-    QMAKE_CXXFLAGS += ' -std=c++11'
+    #QMAKE_CXXFLAGS += ' -std=c++11'
 }
 
 RESOURCES += icons.qrc
