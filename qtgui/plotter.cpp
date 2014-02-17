@@ -27,11 +27,11 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Moe Wheatley.
  */
+
 #include "plotter.h"
 #include <stdlib.h>
 #include <cmath>
 #include <QDebug>
-#include <QtGlobal>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -139,6 +139,7 @@ CPlotter::CPlotter(QWidget *parent) :
 
 CPlotter::~CPlotter()
 {
+
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -572,6 +573,61 @@ void CPlotter::wheelEvent(QWheelEvent * event)
     else
         drawOverlay();
 }
+
+#ifdef POWERMATE
+//////////////////////////////////////////////////////////////////////
+// Called when the vfo knob is turned
+//////////////////////////////////////////////////////////////////////
+void CPlotter::vfoRotated(KnobEvent event)
+{
+    // inc/dec demod frequency
+    int numSteps = event.delta();
+
+    if (event.modifiers() & Qt::ControlModifier)
+    {
+        // filter width
+        m_DemodLowCutFreq -= numSteps*m_ClickResolution;
+        m_DemodHiCutFreq += numSteps*m_ClickResolution;
+        clampDemodParameters();
+        emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
+    }
+
+    else if (event.modifiers() & Qt::ShiftModifier)
+    {
+        // filter shift
+        m_DemodLowCutFreq += numSteps*m_ClickResolution;
+        m_DemodHiCutFreq += numSteps*m_ClickResolution;
+        clampDemodParameters();
+        emit newFilterFreq(m_DemodLowCutFreq, m_DemodHiCutFreq);
+    }
+    else if (event.buttons() == Qt::MidButton){
+        // calculate new range shown on FFT
+        float zoom_factor = event.delta() < 0 ? 1.1 : 0.9;
+        float new_range = qBound(10.0f,
+                                 (float)(m_Span) * zoom_factor,
+                                 (float)(m_SampleFreq) * 10.0f);
+
+        // Frequency where event occured is kept fixed under mouse
+        float fixed_hz = m_DemodCenterFreq;
+        float ratio = (float)xFromFreq(fixed_hz) / (float)m_OverlayPixmap.width();
+
+        float f_max = fixed_hz + (1.0 - ratio) * new_range;
+        float f_min = f_max - new_range;
+        qint64 fc = (qint64)(f_min + (f_max - f_min) / 2.0);
+
+        setFftCenterFreq(fc-m_CenterFreq);
+        setSpanFreq((quint32)new_range);
+
+        zoom_factor = (float)m_SampleFreq/(float)m_Span;
+        qDebug() << QString("Spectrum zoom: %1x").arg(zoom_factor, 0, 'f', 1);
+    }
+    else{
+        m_DemodCenterFreq += (numSteps*m_ClickResolution);
+        m_DemodCenterFreq = roundFreq(m_DemodCenterFreq, m_ClickResolution );
+        emit newDemodFreq(m_DemodCenterFreq, m_DemodCenterFreq-m_CenterFreq);
+    }
+}
+#endif //POWERMATE
 
 //////////////////////////////////////////////////////////////////////
 // Called when screen size changes so must recalculate bitmaps

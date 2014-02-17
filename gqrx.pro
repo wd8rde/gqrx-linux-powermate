@@ -32,6 +32,8 @@ unix:!macx {
         AUDIO_BACKEND = pulse
         message("Gqrx configured with pulseaudio backend")
     }
+    DEFINES += POWERMATE
+    QMAKE_CXXFLAGS += ' -std=c++11'
 }
 
 RESOURCES += icons.qrc
@@ -48,7 +50,7 @@ isEmpty(PREFIX) {
 target.path  = $$PREFIX/bin
 INSTALLS    += target 
 
-#CONFIG += debug
+//CONFIG += debug
 
 # disable debug messages in release
 CONFIG(debug, debug|release) {
@@ -109,6 +111,7 @@ SOURCES += \
     qtgui/meter.cpp \
     qtgui/nb_options.cpp \
     qtgui/plotter.cpp \
+    qtgui/powermate.cpp \
     qtgui/qtcolorpicker.cpp \
     receivers/nbrx.cpp \
     receivers/receiver_base.cpp \
@@ -151,6 +154,7 @@ HEADERS += \
     qtgui/meter.h \
     qtgui/nb_options.h \
     qtgui/plotter.h \
+    qtgui/powermate.h \
     qtgui/qtcolorpicker.h \
     receivers/nbrx.h \
     receivers/receiver_base.h \
@@ -207,6 +211,7 @@ unix:!macx {
 
     LIBS += -lboost_system$$BOOST_SUFFIX -lboost_program_options$$BOOST_SUFFIX
     LIBS += -lrt  # need to include on some distros
+    LIBS += -pthread -lX11
 }
 
 macx {

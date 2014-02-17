@@ -38,6 +38,7 @@
 #include "qtgui/dockiqplayer.h"
 #include "qtgui/dockfft.h"
 #include "qtgui/afsk1200win.h"
+#include "qtgui/powermate.h"
 
 #include "applications/gqrx/remote_control.h"
 
@@ -108,6 +109,9 @@ private:
     receiver *rx;
 
     RemoteControl *remote;
+#ifdef POWERMATE
+    PmInput *powermateKnob;
+#endif //POWERMATE
 
 private:
     void updateFrequencyRange(bool ignore_limits);
@@ -167,6 +171,7 @@ private slots:
     void on_plotter_newDemodFreq(qint64 freq, qint64 delta);   /*! New demod freq (aka. filter offset). */
     void on_plotter_newFilterFreq(int low, int high);    /*! New filter width */
     void on_plotter_newCenterFreq(qint64 f);
+    void on_vfoRotated(KnobEvent event);
 
     /* menu and toolbar actions */
     void on_actionDSP_triggered(bool checked);

@@ -7,6 +7,7 @@
 #include <QImage>
 #include <vector>
 #include <QMap>
+#include "powermate.h"
 
 #define HORZ_DIVS_MAX 50 //12
 #define MAX_SCREENSIZE 4096
@@ -111,6 +112,10 @@ public:
     }
 
     int getNearestPeak(QPoint pt);
+#ifdef POWERMATE
+    void vfoRotated(KnobEvent event);
+#endif //POWERMATE
+
 
 signals:
     void newCenterFreq(qint64 f);

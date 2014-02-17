@@ -75,6 +75,14 @@ MainWindow::MainWindow(const QString cfgfile, bool edit_conf, QWidget *parent) :
     // remote controller
     remote = new RemoteControl();
 
+#ifdef POWERMATE
+    qRegisterMetaType<KnobEvent>("KnobEvent");
+
+    powermateKnob = new PmInput(this,NULL);
+    powermateKnob->start();
+    connect(powermateKnob, SIGNAL(knobEvent(KnobEvent)), this, SLOT(on_vfoRotated(KnobEvent)), Qt::QueuedConnection);
+#endif //POWERMATE
+
     /* meter timer */
     meter_timer = new QTimer(this);
     connect(meter_timer, SIGNAL(timeout()), this, SLOT(meterTimeout()));
@@ -1310,6 +1318,9 @@ void MainWindow::setIqFftSplit(int pct_wf)
     }
 }
 
+void MainWindow::on_vfoRotated(KnobEvent event){
+    ui->plotter->vfoRotated(event);
+}
 void MainWindow::setIqFftAvg(double avg)
 {
     if ((avg >= 0) && (avg <= 1.0))

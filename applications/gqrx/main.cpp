@@ -34,6 +34,8 @@
 
 #include <iostream>
 #include <boost/program_options.hpp>
+#include <thread>
+#include <X11/Xlib.h>
 namespace po = boost::program_options;
 
 static void reset_conf(const QString &file_name);
@@ -46,6 +48,7 @@ int main(int argc, char *argv[])
     bool clierr=false;
     bool edit_conf = false;
 
+    XInitThreads();
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName(GQRX_ORG_NAME);
     QCoreApplication::setOrganizationDomain(GQRX_ORG_DOMAIN);
